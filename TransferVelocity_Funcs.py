@@ -137,7 +137,44 @@ def calcTransferVelocity(swh,sst,ustar,k0,time):
             Kw=np.append(Kw,np.atleast_3d(tmp_kw),axis=2)
     
     return Sc,Kwnb,Kwb,Kw;
+
+############################################   
+#function to calculate the gas transfer velocity using the Wanninkhof (2014) paramterization 
+#Inputs = Wind Speed (m/s), SST
+
+def calcWanKw(wind,sst,time):
+    import numpy as np 
+    
+    for i in range(len(time)):
+        #convert temperature to Celcius 
+        sst_c=sst[:,:,i]-273
+        #Schmidt Number Coefficients
+        A=2116.8
+        B=(-136.25)*sst_c
+        C=4.7353*(sst_c**2)
+        D=(-0.092307)*(sst_c**3)
+        E=0.000755*(sst_c**4)
         
+        tmp_sc=A+B+C+D+E
+        if i == 0:
+            Sc=tmp_sc
+        elif i ==1:
+            Sc=np.stack([Sc,tmp_sc],axis=2)
+        else:
+            Sc=np.append(Sc,np.atleast_3d(tmp_sc),axis=2)
+            
+        u10=wind[:,:,i]
+        
+        tmp_kw=0.251*(u10)**2*np.sqrt(660/tmp_sc)
+        
+        if i == 0:
+            Kw=tmp_kw
+        elif i ==1:
+            Kw=np.stack([Kw,tmp_kw],axis=2)
+        else:
+            Kw=np.append(Kw,np.atleast_3d(tmp_kw),axis=2)
+    
+    return Sc,Kw
         
         
         
